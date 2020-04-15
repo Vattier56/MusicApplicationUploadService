@@ -4,13 +4,14 @@ import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import musicprojectuploadservice.music_upload_service.model.Image;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import java.io.File;
 import java.util.Random;
 
 @Service
-public class UploadImageService {
+public class UploadService {
     private static final String IMAGE_PATH = "image/";
     private static final String USER_PATH = "users/";
 
@@ -19,16 +20,16 @@ public class UploadImageService {
     @Value("${bucket}")
     private String bucketName;
 
-    public UploadImageService(AmazonS3 s3client) {
+    public UploadService(AmazonS3 s3client) {
         this.s3client = s3client;
     }
 
 
-    public String uploadImageFile(String name, File file) {
-        String filePath = generateString(IMAGE_PATH + name);
+    String uploadImageFile(String name, File file) {
+        String filePath = IMAGE_PATH + generateString(name);
 
         while (fileExists(filePath)) {
-            filePath = generateString(IMAGE_PATH + name);
+            filePath = IMAGE_PATH + generateString(name);
         }
 
         PutObjectRequest request = new PutObjectRequest(bucketName, filePath, file).withCannedAcl(CannedAccessControlList.PublicRead);
@@ -38,8 +39,8 @@ public class UploadImageService {
         return s3client.getUrl(bucketName, filePath).toString();
     }
 
-    public String uploadUserImage(String name, File file) {
-        String filePath = generateString(USER_PATH + name);
+    String uploadUserImage(String name, File file) {
+        String filePath = USER_PATH + generateString(name);
 
         PutObjectRequest request = new PutObjectRequest(bucketName, filePath, file).withCannedAcl(CannedAccessControlList.PublicRead);
         s3client.putObject(request);
@@ -70,6 +71,13 @@ public class UploadImageService {
         }
 
         return new String(text);
+    }
+
+    void deleteS3Object(Image oldImage) {
+        try {
+            String[] oldPath = oldImage.getImagePath().split("/");
+            s3client.deleteObject(bucketName, oldPath[3] + "/" + oldPath[4]);
+        } catch (Exception e) {}
     }
 
 }

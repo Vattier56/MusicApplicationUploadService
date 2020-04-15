@@ -2,48 +2,38 @@ package musicprojectuploadservice.music_upload_service.controller.rest;
 
 import musicprojectuploadservice.music_upload_service.exception.FileNotFoundException;
 import musicprojectuploadservice.music_upload_service.exception.UploadServiceException;
-import musicprojectuploadservice.music_upload_service.service.UploadImageService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import musicprojectuploadservice.music_upload_service.service.FileService;
+import musicprojectuploadservice.music_upload_service.service.ImageService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 
 
-@RestController("/upload")
+@RestController
+@RequestMapping("/upload")
+@CrossOrigin
 public class UploadController {
 
-    private final UploadImageService imageService;
+    private final ImageService imageService;
 
-    public UploadController(UploadImageService imageService) {
+    public UploadController(ImageService imageService) {
         this.imageService = imageService;
     }
 
-
-    @PostMapping("/image/user")
-    public String saveUserImage(File image) {
-
-        if(!image.isFile())
-            throw new FileNotFoundException("File parameter not found");
-
-        String imagePath = imageService.uploadUserImage(image.getName(), image);
-
-        if(imagePath.isEmpty())
-            throw new UploadServiceException("S3 upload exception");
-
-        return imagePath;
-    }
-
     @PostMapping("/image/music")
-    public String saveSongImage(File image) {
+    public ResponseEntity saveSongImage(@RequestParam(value = "image") MultipartFile image) {
 
-        if(!image.isFile())
+        if(image.isEmpty())
             throw new FileNotFoundException("File parameter not found");
 
-        String imagePath = imageService.uploadImageFile(image.getName(), image);
-
-        if(imagePath.isEmpty())
-            throw new UploadServiceException("S3 upload exception");
-
-        return imagePath;
+        File imageFile = FileService.convert(image);
+        try {
+            imageService.uploadImages(imageFile);
+        } catch (Exception e) {
+            throw new UploadServiceException("Cannot upload image");
+        }
+        return ResponseEntity.ok().build();
     }
 
 }

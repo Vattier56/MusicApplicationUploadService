@@ -3,7 +3,7 @@ package musicprojectuploadservice.music_upload_service.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(HttpStatus.NOT_FOUND)
+@ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
 public class FileNotFoundException extends RuntimeException {
 
     public FileNotFoundException(String message) {
