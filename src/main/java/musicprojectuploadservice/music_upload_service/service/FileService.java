@@ -1,5 +1,6 @@
 package musicprojectuploadservice.music_upload_service.service;
 
+import musicprojectuploadservice.music_upload_service.exception.FileProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,7 @@ public class FileService {
             fileOutputStream.write(file.getBytes());
             fileOutputStream.close();
         } catch (IOException e) {
-//            throw new FileProcessingException("File conversion error !");
+            throw new FileProcessingException("File conversion error !");
         }
         return convFile;
     }

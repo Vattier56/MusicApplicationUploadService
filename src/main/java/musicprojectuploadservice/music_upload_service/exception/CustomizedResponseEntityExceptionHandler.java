@@ -31,6 +31,15 @@ public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExce
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    /*500 Internal Server Exception Handler -> File conversion exception */
+    @ExceptionHandler(FileProcessingException.class)
+    public final ResponseEntity<ExceptionResponse> handleFileConversionException(FileProcessingException exception, WebRequest webRequest) {
+
+        ExceptionResponse response = new ExceptionResponse(new Date(), exception.getMessage(), webRequest.getDescription(false));
+
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
     /*404 Not Found Exception Handler -> File not found */
     @ExceptionHandler(FileNotFoundException.class)
     public final ResponseEntity<ExceptionResponse> handleMissingFilePException(FileNotFoundException exception, WebRequest webRequest) {
