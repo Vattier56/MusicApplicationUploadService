@@ -4,7 +4,9 @@ import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import musicprojectuploadservice.music_upload_service.model.Image;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import java.io.File;
@@ -19,6 +21,8 @@ public class UploadService {
 
     @Value("${bucket}")
     private String bucketName;
+    @Autowired
+    private static Logger logger = LoggerFactory.getLogger(UploadService.class);
 
     public UploadService(AmazonS3 s3client) {
         this.s3client = s3client;
@@ -34,6 +38,7 @@ public class UploadService {
 
         PutObjectRequest request = new PutObjectRequest(bucketName, filePath, file).withCannedAcl(CannedAccessControlList.PublicRead);
         s3client.putObject(request);
+        logger.info("File upload successful : {} ", file);
 
         FileService.cleanup(file);
         return s3client.getUrl(bucketName, filePath).toString();
@@ -44,6 +49,7 @@ public class UploadService {
 
         PutObjectRequest request = new PutObjectRequest(bucketName, filePath, file).withCannedAcl(CannedAccessControlList.PublicRead);
         s3client.putObject(request);
+        logger.info("File upload successful : {} ", file);
 
         FileService.cleanup(file);
         return s3client.getUrl(bucketName, filePath).toString();
@@ -73,11 +79,13 @@ public class UploadService {
         return new String(text);
     }
 
-    void deleteS3Object(Image oldImage) {
+    void deleteS3Object(String oldImage) {
         try {
-            String[] oldPath = oldImage.getImagePath().split("/");
+            String[] oldPath = oldImage.split("/");
             s3client.deleteObject(bucketName, oldPath[3] + "/" + oldPath[4]);
-        } catch (Exception e) {}
+        } catch (Exception e) {
+            logger.error("Cannot delete file : {}", oldImage);
+        }
     }
 
 }

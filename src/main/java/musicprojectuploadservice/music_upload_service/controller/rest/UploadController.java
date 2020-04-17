@@ -21,6 +21,23 @@ public class UploadController {
         this.imageService = imageService;
     }
 
+    @PostMapping("/image/user")
+    public ResponseEntity saveUserImage(@RequestParam(value = "image") MultipartFile image, @RequestParam(value = "oldImagePath") String oldImagePath, @RequestParam(value = "userNickName")String userNickName) {
+
+        if(image.isEmpty())
+            throw new FileNotFoundException("File parameter not found");
+
+        File imageFile = FileService.convert(image);
+
+        try {
+            imageService.uploadUserImage(imageFile, oldImagePath, userNickName);
+        } catch (Exception e) {
+            throw new UploadServiceException("Cannot upload image");
+        }
+        return ResponseEntity.ok().build();
+    }
+
+
     @PostMapping("/image/music")
     public ResponseEntity saveSongImage(@RequestParam(value = "image") MultipartFile image) {
 
