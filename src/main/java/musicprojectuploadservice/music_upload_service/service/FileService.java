@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -41,14 +40,10 @@ public class FileService {
     }
 
 
-    public static void save(File file) {
-        try {
-            byte[] fileContent = Files.readAllBytes(file.toPath());
+    public static void save(File file) throws IOException {
+        byte[] fileContent = Files.readAllBytes(file.toPath());
 
-            Files.write(Paths.get(FILE_PATH + file.getName()), fileContent);
-        } catch (Exception e){
-            throw new FileProcessingException("Unable to save file");
-        }
+        Files.write(Paths.get(FILE_PATH + file.getName()), fileContent);
     }
 
     static void cleanup(File file) {
